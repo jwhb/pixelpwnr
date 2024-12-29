@@ -30,6 +30,13 @@ pub struct Arguments {
     #[arg(short, long, value_name = "PIXELS")]
     height: Option<u16>,
 
+    /// Canvas width [default: unset (read from server)]
+    #[arg(long, value_name = "PIXELS")]
+    canvas_width: Option<u16>,
+    /// Canvas height [default: unset (read from server)]
+    #[arg(long, value_name = "PIXELS")]
+    canvas_height: Option<u16>,
+
     /// Draw X offset
     #[arg(short, value_name = "PIXELS", default_value_t = 0)]
     x: u16,
@@ -92,6 +99,19 @@ impl ArgHandler {
                 .height
                 .unwrap_or(def.expect("No screen height set or known").1),
         )
+    }
+
+    /// Get the canvas size.
+    pub fn canvas_size(&self) -> Option<(u16, u16)> {
+        match (self.data.canvas_width, self.data.canvas_height) {
+            (Some(width), Some(height)) =>
+                Some((width, height)),
+            (None, None) => None,
+            (_, _) => {
+                println!("Warning: Canvas size ignored because canvas width or height unset");
+                None
+            }
+        }
     }
 
     /// Get the image offset.
