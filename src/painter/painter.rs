@@ -31,6 +31,18 @@ impl Painter {
         }
     }
 
+    /// Get distributive number order from min (inclusive) to max (exclusive)
+    fn get_order(min: u16, max: u16, count: u16) -> Vec<u16> {
+        let mut order = vec![];
+        let offset_size = (max-min)/count as u16;
+        for offset in 0..offset_size {
+            for x in (offset..max).step_by(offset_size.into()) {
+                order.push(x);
+            }
+        }
+        order
+    }
+
     /// Perform work.
     /// Paint the whole defined area.
     pub fn work(&mut self, img_receiver: &Receiver<DynamicImage>) -> Result<(), Error> {
@@ -54,8 +66,8 @@ impl Painter {
         let image = self.image.as_mut().unwrap().to_rgba8();
 
         // Loop through all the pixels, and set their color
-        for x in 0..self.area.w {
-            for y in 0..self.area.h {
+        for x in Painter::get_order(0, self.area.w, 10) {
+            for y in Painter::get_order(0, self.area.h, 10) {
                 // Update the image to paint
                 if let Ok(image) = img_receiver.try_recv() {
                     self.set_image(image);
